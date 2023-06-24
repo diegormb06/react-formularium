@@ -1,9 +1,14 @@
 {
-  "name": "react-form-context",
-  "version": "1.0.0",
+  "name": "react-formularium",
+  "version": "0.1.1",
   "description": "A simple lib for handle forms in React.",
   "main": "index.tsx",
-  "keywords": [],
+  "keywords": [
+    "react",
+    "forms",
+    "form hook",
+    "simple form"
+  ],
   "author": "Diego Rodrigues Machado Borges",
   "license": "MIT",
   "dependencies": {
