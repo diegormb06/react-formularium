@@ -2,12 +2,10 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { FormSchema, validateFields } from "./validations";
 
 type FormContextType = {
-  formData: any;
+  formData: Map<string, any>;
   formErrors: any;
-  handleFormData: (name: string, value: any) => void;
-  submitForm: (onSubmit: any, rules: FormSchema) => void;
+  submitForm: (onSubmit: () => void) => void;
   clearFormData: () => void;
-  setValue: (key: string, value: any) => void;
   setSchema: (formSchema: FormSchema) => void;
 };
 
@@ -22,50 +20,34 @@ export const FormProvider = ({ children }: FormProviderProps) => {
   const formData = useMemo(() => new Map(), []);
   let schema: FormSchema;
 
-  const setSchema = useCallback(
-    (formSchema: FormSchema) => {
-      schema = formSchema;
-    },[]
-  )
-
-  const handleFormData = useCallback(
-    (name: string, value: any) => {
-      formData.set(name, value);
-    },
-    [formData]
-  );
+  const setSchema = useCallback((formSchema: FormSchema) => {
+    schema = formSchema;
+  }, []);
 
   const clearFormData = useCallback(() => {
     formData.clear();
   }, [formData]);
 
-  const setValue = (key: string, value: any) => {
-    formData.set(key, value);
-  };
-
-  const formValidator = useCallback(
-    (rules: FormSchema) => {
-      const inputData = Object.fromEntries(formData);
-      const errors = validateFields(rules, inputData);
-      setFormErrors(errors);
-      return errors.hasError;
-    },
-    [formData]
-  );
+  const formValidator = useCallback((rules: FormSchema) => {
+    const inputData = Object.fromEntries(formData);
+    const errors = validateFields(rules, inputData);
+    setFormErrors(errors);
+    return errors.hasError;
+  }, []);
 
   const submitForm = useCallback(
-    (onSubmit: any, rules: FormSchema) => {
-      if (formValidator(rules)) {
+    (onSubmit: () => void) => {
+      if (formValidator(schema)) {
         return;
       }
-      const formValues = Object.fromEntries(formData);
-      onSubmit(formValues);
+
+      return () => onSubmit();
     },
-    [formData, formValidator]
+    [formValidator]
   );
 
   return (
-    <FormContext.Provider value={{ setSchema, handleFormData, formData, formErrors, setValue, submitForm, clearFormData }}>
+    <FormContext.Provider value={{ setSchema, formData, formErrors, submitForm, clearFormData }}>
       {children}
     </FormContext.Provider>
   );
@@ -82,15 +64,17 @@ export function useForm<T = any>(formSchema: FormSchema, initialData?: T) {
   }
 
   useEffect(() => {
-    return () => formData.clear();
+    const controller = new AbortController();
+    const body = document.querySelector("body");
+    body?.addEventListener("submit", (e) => e.preventDefault(), { signal: controller.signal });
+
+    return () => {
+      controller.abort();
+      formData.clear();
+    };
   }, [formData]);
 
-  const data = formData as T;
-  return { data, ...contextData };
-}
+  const getValues = () => Object.fromEntries(formData) as T;
 
-export const useFormData = () => {
-  const { formData, handleFormData, formErrors } = useContext(FormContext);
-  const data = Object.fromEntries(formData);
-  return { data, formErrors, handleFormData };
-};
+  return { getValues, formData, ...contextData };
+}
