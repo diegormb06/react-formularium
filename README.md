@@ -1,10 +1,19 @@
 ## React formularium
 
-O *React formularium* é uma biblioteca em desenvolvimento e tem a proposta de ser uma lib simples para gestão de formulários que faz uso das estrutura de dados nativas do javascript para salvar, atualizar e obter dados. O core dessa lib é  usar um Map do javascript como estrutura que armazena os dados do formulário e fornece toda api necessária para obter o valor de um campo, alterá-lo e deletá-lo, sem nenhum grande processamento ou uso de estrutura do react, apenas usando map. 
+The *React Formularium* is a library under development that aims to be a simple and efficient solution for form management. It stands out for using native JavaScript data structures to save, update, and retrieve data, making it lightweight and performant.
 
-Sendo assim para salvar o dado do formulário você poderia fazer o seguinte:
-```
-const {data: formData} = useForm<Type of data>(initialdataObj);
+### Key Features:
+
+* **Simplicity:** The library offers an intuitive and easy-to-use API, ideal for beginners and experienced developers.
+* **Efficiency:** The use of native JavaScript data structures ensures superior performance and optimizes resource usage.
+* **Flexibility:** React Formularium is compatible with different types of forms and can be easily integrated into other projects.
+* **Extensibility:** The library provides customizable hooks that allow you to adapt the form's behavior to your specific needs.
+
+<br/>
+
+Therefore, to save the form data, you could do the following:
+```javascript
+const { data: formData } = useForm<Type of data>(initialdataObj);
 
 <TextInput
   name="title"
@@ -12,13 +21,16 @@ const {data: formData} = useForm<Type of data>(initialdataObj);
   onChangeText={value => formData.set('title', value)}
 />
 ```
+<br/>
 
-Para obter o dado:
-```
+To get individual data:
+```javascript
 const title = formData.get(title)
 ```
-A função *submitForm* passa todos os dados por parâmetro e recebe um objeto para fazer as validações básicas.
-```
+<br/>
+
+The function *submitForm* return all data as parameter to the callback function.
+```typescript
 const onSubmit = async (formData: T) => {
   console.log(formData) // log an object with all form data
 }
