@@ -120,6 +120,7 @@ function toBeTrue(value: any) {
 
 export function validateFields(rules: FormSchema, values: any) {
   let errors: any = {};
+
   for (let rule in rules) {
     switch (rules[rule]) {
       case "cpf":
@@ -149,7 +150,7 @@ export function validateFields(rules: FormSchema, values: any) {
   if (Object.values(errors).indexOf(true) > -1) {
     errors.hasError = true;
   } else {
-    errors.hasError = "biscoito";
+    errors.hasError = false;
   }
 
   return errors;

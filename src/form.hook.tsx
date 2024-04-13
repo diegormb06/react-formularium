@@ -8,7 +8,7 @@ export function useForm<T = any>(formSchema?: FormSchema | null, initialData?: T
 
   useEffect(() => {
     const controller = new AbortController();
-    const body = document.querySelector("body");
+    const body = document?.querySelector("body");
     body?.addEventListener("submit", (e) => e.preventDefault(), { signal: controller.signal });
 
     return () => {
@@ -31,11 +31,9 @@ export function useForm<T = any>(formSchema?: FormSchema | null, initialData?: T
    * @param {FormSchema} rules schema with validation rules
    */
   const formValidator = useCallback((rules: FormSchema) => {
-    const inputData = Object.fromEntries(formData);
-    const errors = validateFields(rules, inputData);
-    setFormErrors(errors);
+    const errors = validateFields(rules, getValues());
 
-    return errors.hasError;
+    return errors;
   }, []);
 
   /**
@@ -48,9 +46,10 @@ export function useForm<T = any>(formSchema?: FormSchema | null, initialData?: T
    */
   const submitForm = useCallback((onSubmit: () => void) => {
     if (formSchema) {
-      const { hasError } = formValidator(formSchema);
+      const { hasError, ...errors } = formValidator(formSchema);
 
       if (hasError) {
+        setFormErrors(errors);
         return;
       }
     }

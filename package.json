@@ -1,13 +1,15 @@
 {
   "name": "react-formularium",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A simple lib for handle forms in React.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "type": "module",
   "scripts": {
     "clean": "rimraf lib",
-    "build": "npm run clean && tsc"
+    "build": "npm run clean && tsc",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "react",
@@ -15,7 +17,7 @@
     "form hook",
     "simple form"
   ],
-  "author": "Diego Rodrigues Machado Borges",
+  "author": "Diego Rodrigues M. Borges",
   "license": "MIT",
   "dependencies": {
     "react": "^18.2.0"
@@ -25,7 +27,12 @@
     "url": "https://github.com/diegormb06/react-formularium.git"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^15.0.2",
+    "@types/react": "^18.2.14",
+    "@vitejs/plugin-react": "^4.2.1",
+    "jsdom": "^24.0.0",
     "typescript": "^5.1.3",
-    "@types/react": "^18.2.14"
+    "vitest": "^1.5.0"
   }
 }
