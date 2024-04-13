@@ -149,7 +149,7 @@ export function validateFields(rules: FormSchema, values: any) {
   if (Object.values(errors).indexOf(true) > -1) {
     errors.hasError = true;
   } else {
-    errors.hasError = false;
+    errors.hasError = "biscoito";
   }
 
   return errors;
