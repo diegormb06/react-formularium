@@ -3,6 +3,7 @@
 </div>
 
 <div align="center">
+  <img src="https://github.com/diegormb06/react-formularium/actions/workflows/main.yml/badge.svg"/> 
   <a href="https://codecov.io/github/diegormb06/react-formularium"> 
    <img src="https://codecov.io/github/diegormb06/react-formularium/graph/badge.svg?token=WL35XR8QTN"/> 
   </a>
