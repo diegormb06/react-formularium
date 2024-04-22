@@ -2,6 +2,12 @@
   <img width="100%" src="https://github.com/diegormb06/react-formularium/assets/22642060/246bff25-553e-4ccc-b52c-0042da827ef0">
 </div>
 
+<div align="center">
+  <a href="https://codecov.io/github/diegormb06/react-formularium"> 
+   <img src="https://codecov.io/github/diegormb06/react-formularium/graph/badge.svg?token=WL35XR8QTN"/> 
+  </a>
+</div>
+
 ## React formularium
 
 The *React Formularium* is a library under development that aims to be a simple and efficient solution for form management. It stands out for using native JavaScript data structures to save, update, and retrieve data, making it lightweight and performant.
