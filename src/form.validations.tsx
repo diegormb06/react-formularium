@@ -115,7 +115,7 @@ function testEmail(email: string) {
 }
 
 function toBeTrue(value: any) {
-  return !!value;
+  return !!value === false;
 }
 
 export function validateFields(rules: FormSchema, values: any) {
