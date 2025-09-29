@@ -71,6 +71,8 @@ export function useForm<T extends Record<string, any> = Record<string, any>>(
 
   // Event listener para prevenir submit padrão
   useEffect(() => {
+    if (typeof document === 'undefined') return;
+    
     const controller = new AbortController();
     const handleSubmit = (e: Event) => e.preventDefault();
     

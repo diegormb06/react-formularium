@@ -19,17 +19,15 @@
   ],
   "author": "Diego Rodrigues M. Borges",
   "license": "MIT",
-  "dependencies": {
-    "react": "^18.2.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/diegormb06/react-formularium.git"
   },
   "devDependencies": {
+    "react": "^17.0.0",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^15.0.2",
-    "@types/react": "^18.2.14",
+    "@types/react": "^17.0.0",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/coverage-v8": "^1.5.0",
     "jsdom": "^24.0.0",
