@@ -1,6 +1,6 @@
 {
   "name": "react-formularium",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A simple lib for handle forms in React.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

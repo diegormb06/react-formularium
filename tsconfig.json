@@ -2,14 +2,18 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "outDir": "./lib",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "declaration": true,
-    "jsx": "react"
+    "jsx": "react",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["**/*.spec.ts"]
+  "exclude": ["**/*.spec.ts", "test/**/*"]
 }
