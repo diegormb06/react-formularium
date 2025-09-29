@@ -21,6 +21,26 @@ A simple, efficient, and performant library for form management in React. **Reac
 * 🌐 **Brazilian Validation**: Native support for CPF and CNPJ
 * 📱 **Multiplatform**: Works on React Web, React Native, Next.js, Expo, and other frameworks
 
+## 📚 Table of Contents
+
+- [📦 Installation](#-installation)
+- [🌐 Multiplatform Compatibility](#-multiplatform-compatibility)
+- [🚀 Quick Start](#-quick-start)
+- [📖 Complete API](#-complete-api)
+- [🔧 Practical Examples](#-practical-examples)
+  - [Form with Initial Data](#form-with-initial-data)
+  - [Form with Validation](#form-with-validation)
+  - [Brazilian Document Validation](#brazilian-document-validation)
+  - [React Native Example](#react-native-example)
+  - [Dynamic Form](#dynamic-form)
+- [✅ Available Validation Rules](#-available-validation-rules)
+- [🎨 Integration with UI Libraries](#-integration-with-ui-libraries)
+- [🔄 Advanced Use Cases](#-advanced-use-cases)
+- [📊 Performance and Best Practices](#-performance-and-best-practices)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🔗 Useful Links](#-useful-links)
+
 ## 📦 Installation
 
 ```bash
