@@ -1,56 +1,45 @@
 import { describe, test, expect } from "vitest";
-import { FormSchema, validateFields } from "../src/form.validations";
+import { mapIssues } from "../src/form.validations";
 
-describe("validateFields function", () => {
-  test("should return empty errors object for valid values", () => {
-    const rules: FormSchema = {
-      cpf: "cpf",
-      cnpj: "cnpj",
-      email: "email",
-      requiredField: "required",
-      confirmPassword: "confirm_password",
-    };
+describe("mapIssues", () => {
+  test("maps issues array to { field: message } object", () => {
+    const result = mapIssues([
+      { message: "Invalid email", path: ["email"] },
+      { message: "Minimum length is 8", path: ["password"] },
+    ]);
 
-    const values = {
-      cpf: "529.982.247-25",
-      cnpj: "21053264000183", //generated in 4dev.com.br
-      email: "test@example.com",
-      requiredField: "required value",
-      confirm_password: "password",
-      password: "password",
-    };
-
-    const errors = validateFields(rules, values);
-    expect(errors.hasError).toEqual(false);
+    expect(result).toEqual({
+      email: "Invalid email",
+      password: "Minimum length is 8",
+    });
   });
 
-  test("should return errors object for invalid values", () => {
-    const rules: FormSchema = {
-      cpf: "cpf",
-      cnpj: "cnpj",
-      email: "email",
-      requiredField: "required",
-      confirmPassword: "confirm_password",
-    };
+  test("keeps only the first error per field", () => {
+    const result = mapIssues([
+      { message: "First error", path: ["email"] },
+      { message: "Second error", path: ["email"] },
+    ]);
 
-    const values = {
-      cpf: "invalid cpf",
-      cnpj: "invalid cnpj",
-      email: "invalid email",
-      requiredField: "",
-      confirm_password: "wrong password",
-      password: "password",
-    };
+    expect(result).toEqual({ email: "First error" });
+  });
 
-    const errors = validateFields(rules, values);
+  test("ignores issues without path", () => {
+    const result = mapIssues([{ message: "Global error" }]);
 
-    expect(errors).toEqual({
-      cpf: true,
-      cnpj: true,
-      email: true,
-      requiredField: true,
-      confirmPassword: true,
-      hasError: true,
-    });
+    expect(result).toEqual({});
+  });
+
+  test("supports nested paths with dot notation", () => {
+    const result = mapIssues([
+      { message: "Required", path: ["address", "street"] },
+    ]);
+
+    expect(result).toEqual({ "address.street": "Required" });
+  });
+
+  test("returns empty object when issues array is empty", () => {
+    const result = mapIssues([]);
+
+    expect(result).toEqual({});
   });
 });

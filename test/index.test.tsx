@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import * as FormModule from "../src/index"; // Importe o módulo index.ts
+import * as FormModule from "../src/index";
 
 describe("index file", () => {
   test("should export FormContext", () => {
@@ -10,7 +10,7 @@ describe("index file", () => {
     expect(FormModule.useForm).toBeDefined();
   });
 
-  test("should export validateFields", () => {
-    expect(FormModule.validateFields).toBeDefined();
+  test("should export mapIssues", () => {
+    expect(FormModule.mapIssues).toBeDefined();
   });
 });

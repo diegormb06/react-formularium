@@ -16,9 +16,8 @@ A simple, efficient, and performant library for form management in React. **Reac
 * 🎯 **Simplicity**: Intuitive and easy-to-use API, ideal for beginners and experienced developers
 * ⚡ **Performance**: Uses native JavaScript data structures to optimize resource usage
 * 🔧 **Flexibility**: Compatible with different types of forms and easy integration
-* 🛠️ **TypeScript**: Complete TypeScript support with strong typing
-* ✅ **Validation**: Robust validation system with predefined rules
-* 🌐 **Brazilian Validation**: Native support for CPF and CNPJ
+* 🛠️ **TypeScript**: Complete TypeScript support with strong typing and schema-inferred types
+* ✅ **Standard Schema**: Validation via the [Standard Schema](https://standardschema.dev) spec — use Zod, Valibot, ArkType, or any compatible library without adapters
 * 📱 **Multiplatform**: Works on React Web, React Native, Next.js, Expo, and other frameworks
 
 ## 📚 Table of Contents
@@ -29,11 +28,10 @@ A simple, efficient, and performant library for form management in React. **Reac
 - [📖 Complete API](#-complete-api)
 - [🔧 Practical Examples](#-practical-examples)
   - [Form with Initial Data](#form-with-initial-data)
-  - [Form with Validation](#form-with-validation)
-  - [Brazilian Document Validation](#brazilian-document-validation)
+  - [Form with Validation (Standard Schema)](#form-with-validation-standard-schema)
   - [React Native Example](#react-native-example)
   - [Dynamic Form](#dynamic-form)
-- [✅ Available Validation Rules](#-available-validation-rules)
+- [✅ Standard Schema Validation](#-standard-schema-validation)
 - [🎨 Integration with UI Libraries](#-integration-with-ui-libraries)
 - [🔄 Advanced Use Cases](#-advanced-use-cases)
 - [📊 Performance and Best Practices](#-performance-and-best-practices)
@@ -133,25 +131,29 @@ function MyForm() {
 
 ## 📖 Complete API
 
-### `useForm<T>(formSchema?, initialData?)`
+### `useForm<T>(config?)`
 
 The main hook of the library that returns an object with form methods and state.
 
-#### Parameters
+#### Config object
 
-- `formSchema` (optional): Form validation schema
-- `initialData` (optional): Initial data to populate the form
+```typescript
+{
+  initialValues?: Partial<T>;          // Initial values to populate the form
+  schema?: StandardSchema<unknown, T>  // Any Standard Schema compatible library
+}
+```
 
 #### Returns
 
 ```typescript
 {
-  getValues: () => T;                    // Gets all form values
-  setValue: (key, value) => void;        // Sets a specific value
-  formData: Map<string, any>;            // Direct access to the data Map
-  formErrors: Record<string, string>;    // Validation errors
-  submitForm: (callback) => void;        // Submits the form
-  clearErrors: () => void;               // Clears errors
+  getValues: () => T;                            // Gets all form values
+  setValue: (key, value) => void;                // Sets a specific value
+  formData: Map<string, any>;                    // Direct access to the data Map
+  formErrors: Partial<Record<keyof T, string>>;  // Validation errors per field
+  submitForm: (callback) => Promise<void>;       // Submits the form (async)
+  clearErrors: () => void;                       // Clears all errors
 }
 ```
 
@@ -167,13 +169,13 @@ interface UserForm {
 }
 
 function EditUserForm() {
-  const initialData: Partial<UserForm> = {
-    name: 'John Silva',
-    email: 'john@example.com',
-    bio: 'React passionate developer'
-  };
-
-  const { getValues, setValue, submitForm } = useForm<UserForm>(null, initialData);
+  const { getValues, setValue, submitForm } = useForm<UserForm>({
+    initialValues: {
+      name: 'John Silva',
+      email: 'john@example.com',
+      bio: 'React passionate developer'
+    }
+  });
 
   const handleSubmit = async (values: UserForm) => {
     try {
@@ -218,33 +220,30 @@ function EditUserForm() {
 }
 ```
 
-### Form with Validation
+### Form with Validation (Standard Schema)
+
+Pass any [Standard Schema](https://standardschema.dev)-compatible library via the `schema` option. The example below uses **Zod**, but the same works for Valibot, ArkType, or any other compatible library.
 
 ```tsx
-import { useForm, FormSchema } from 'react-formularium';
+import { z } from 'zod';
+import { useForm } from 'react-formularium';
 
-interface LoginForm {
-  email: string;
-  password: string;
-  acceptTerms: boolean;
-}
+const loginSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Minimum 8 characters'),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
 
 function LoginForm() {
-  const schema: FormSchema = {
-    email: 'email',
-    password: 'required',
-    acceptTerms: 'toBeTrue'
-  };
-
-  const { setValue, submitForm, formErrors, clearErrors, getValues } = useForm<LoginForm>(schema);
+  const { setValue, submitForm, formErrors, clearErrors, getValues } = useForm<LoginForm>({
+    schema: loginSchema,
+  });
 
   const handleSubmit = async (values: LoginForm) => {
-    try {
-      const response = await login(values);
-      console.log('Login successful:', response);
-    } catch (error) {
-      console.error('Login error:', error);
-    }
+    // values is already the validated output from the schema
+    const response = await login(values);
+    console.log('Login successful:', response);
   };
 
   const values = getValues();
@@ -261,9 +260,7 @@ function LoginForm() {
           onChange={(e) => setValue('email', e.target.value)}
           placeholder="Your email"
         />
-        {formErrors.email && (
-          <span style={{ color: 'red' }}>Invalid email</span>
-        )}
+        {formErrors.email && <span style={{ color: 'red' }}>{formErrors.email}</span>}
       </div>
 
       <div>
@@ -273,23 +270,7 @@ function LoginForm() {
           onChange={(e) => setValue('password', e.target.value)}
           placeholder="Your password"
         />
-        {formErrors.password && (
-          <span style={{ color: 'red' }}>Password is required</span>
-        )}
-      </div>
-
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={values.acceptTerms || false}
-            onChange={(e) => setValue('acceptTerms', e.target.checked)}
-          />
-          I accept the terms of use
-        </label>
-        {formErrors.acceptTerms && (
-          <span style={{ color: 'red' }}>You must accept the terms</span>
-        )}
+        {formErrors.password && <span style={{ color: 'red' }}>{formErrors.password}</span>}
       </div>
 
       <button type="submit">Sign In</button>
@@ -299,94 +280,17 @@ function LoginForm() {
 }
 ```
 
-### Brazilian Document Validation
+The same form works identically with **Valibot**:
 
 ```tsx
-interface ClientForm {
-  name: string;
-  cpf: string;
-  cnpj: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+import * as v from 'valibot';
 
-function ClientRegistration() {
-  const schema: FormSchema = {
-    name: 'required',
-    cpf: 'cpf',
-    cnpj: 'cnpj', 
-    email: 'email',
-    password: 'required',
-    confirmPassword: 'confirm_password'
-  };
+const loginSchema = v.object({
+  email: v.pipe(v.string(), v.email('Invalid email')),
+  password: v.pipe(v.string(), v.minLength(8, 'Minimum 8 characters')),
+});
 
-  const { setValue, submitForm, formErrors, getValues } = useForm<ClientForm>(schema);
-
-  const handleSubmit = async (values: ClientForm) => {
-    console.log('Client registered:', values);
-    // Registration logic...
-  };
-
-  const values = getValues();
-
-  return (
-    <form onSubmit={(e) => {
-      e.preventDefault();
-      submitForm(handleSubmit);
-    }}>
-      <input
-        type="text"
-        value={values.name || ''}
-        onChange={(e) => setValue('name', e.target.value)}
-        placeholder="Full name"
-      />
-      {formErrors.name && <span>Name is required</span>}
-
-      <input
-        type="text"
-        value={values.cpf || ''}
-        onChange={(e) => setValue('cpf', e.target.value)}
-        placeholder="CPF (000.000.000-00)"
-      />
-      {formErrors.cpf && <span>Invalid CPF</span>}
-
-      <input
-        type="text"
-        value={values.cnpj || ''}
-        onChange={(e) => setValue('cnpj', e.target.value)}
-        placeholder="CNPJ (00.000.000/0000-00)"
-      />
-      {formErrors.cnpj && <span>Invalid CNPJ</span>}
-
-      <input
-        type="email"
-        value={values.email || ''}
-        onChange={(e) => setValue('email', e.target.value)}
-        placeholder="Email"
-      />
-      {formErrors.email && <span>Invalid email</span>}
-
-      <input
-        type="password"
-        value={values.password || ''}
-        onChange={(e) => setValue('password', e.target.value)}
-        placeholder="Password"
-      />
-      {formErrors.password && <span>Password is required</span>}
-
-      <input
-        type="password"
-        value={values.confirmPassword || ''}
-        onChange={(e) => setValue('confirmPassword', e.target.value)}
-        placeholder="Confirm password"
-      />
-      {formErrors.confirmPassword && <span>Passwords don't match</span>}
-
-      <button type="submit">Register Client</button>
-    </form>
-  );
-}
+// useForm({ schema: loginSchema }) — no changes needed
 ```
 
 ### React Native Example
@@ -394,22 +298,21 @@ function ClientRegistration() {
 ```tsx
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useForm, FormProvider, FormSchema } from 'react-formularium';
+import { useForm, FormProvider } from 'react-formularium';
+import { z } from 'zod';
 
-interface MobileForm {
-  name: string;
-  email: string;
-  phone: string;
-}
+const mobileSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email'),
+  phone: z.string().min(1, 'Phone is required'),
+});
+
+type MobileForm = z.infer<typeof mobileSchema>;
 
 function MobileFormScreen() {
-  const schema: FormSchema = {
-    name: 'required',
-    email: 'email',
-    phone: 'required'
-  };
-
-  const { setValue, submitForm, formErrors, getValues } = useForm<MobileForm>(schema);
+  const { setValue, submitForm, formErrors, getValues } = useForm<MobileForm>({
+    schema: mobileSchema,
+  });
 
   const handleSubmit = async (values: MobileForm) => {
     Alert.alert('Success!', `Data sent:\n${JSON.stringify(values, null, 2)}`);
@@ -427,7 +330,7 @@ function MobileFormScreen() {
         value={values.name || ''}
         onChangeText={(text) => setValue('name', text)}
       />
-      {formErrors.name && <Text style={styles.errorText}>Name is required</Text>}
+      {formErrors.name && <Text style={styles.errorText}>{formErrors.name}</Text>}
 
       <TextInput
         style={[styles.input, formErrors.email && styles.inputError]}
@@ -437,7 +340,7 @@ function MobileFormScreen() {
         value={values.email || ''}
         onChangeText={(text) => setValue('email', text)}
       />
-      {formErrors.email && <Text style={styles.errorText}>Invalid email</Text>}
+      {formErrors.email && <Text style={styles.errorText}>{formErrors.email}</Text>}
 
       <TextInput
         style={[styles.input, formErrors.phone && styles.inputError]}
@@ -446,7 +349,7 @@ function MobileFormScreen() {
         value={values.phone || ''}
         onChangeText={(text) => setValue('phone', text)}
       />
-      {formErrors.phone && <Text style={styles.errorText}>Phone is required</Text>}
+      {formErrors.phone && <Text style={styles.errorText}>{formErrors.phone}</Text>}
 
       <TouchableOpacity
         style={styles.button}
@@ -551,31 +454,72 @@ function DynamicForm() {
 }
 ```
 
-## ✅ Available Validation Rules
+## ✅ Standard Schema Validation
 
-| Rule | Description |
-|------|-------------|
-| `required` | Required field |
-| `email` | Email validation |
-| `cpf` | Brazilian CPF validation |
-| `cnpj` | Brazilian CNPJ validation |
-| `toBeTrue` | Field must be true (checkboxes) |
-| `confirm_password` | Password confirmation |
+React Formularium validates using the [Standard Schema](https://standardschema.dev) specification. Any library that implements the spec works without adapters or additional configuration.
+
+### Compatible libraries
+
+| Library | Install |
+|---------|---------|
+| [Zod](https://zod.dev) | `npm install zod` |
+| [Valibot](https://valibot.dev) | `npm install valibot` |
+| [ArkType](https://arktype.io) | `npm install arktype` |
+| [Effect Schema](https://effect.website/docs/schema) | `npm install effect` |
+
+### How it works
+
+When a `schema` is provided, `submitForm` calls `schema['~standard'].validate(values)` and handles the result:
+
+- **Success** (`{ value }`): errors are cleared, `onSubmit` is called with the validated output
+- **Failure** (`{ issues }`): submission is cancelled and `formErrors` is populated
+
+```ts
+// What the library does internally — library-agnostic by design
+const result = await schema['~standard'].validate(values)
+
+if (result.issues) {
+  // map issues to { fieldName: 'first error message' }
+  setFormErrors(mapIssues(result.issues))
+  return
+}
+
+await onSubmit(result.value)
+```
+
+Both synchronous and asynchronous `validate()` implementations are supported.
+
+### `mapIssues` utility
+
+The `mapIssues` function is also exported for use outside of `useForm`:
+
+```ts
+import { mapIssues } from 'react-formularium';
+
+const errors = mapIssues([
+  { message: 'Invalid email', path: ['email'] },
+  { message: 'Too short', path: ['password'] },
+])
+// → { email: 'Invalid email', password: 'Too short' }
+```
+
+Nested paths are joined with a dot: `['address', 'street']` → `'address.street'`. Only the first error per field is kept.
 
 ## 🎨 Integration with UI Libraries
 
 ### With Material-UI
 
 ```tsx
-import { TextField, Button, Checkbox, FormControlLabel } from '@mui/material';
+import { TextField, Button } from '@mui/material';
+import { z } from 'zod';
+
+const schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email'),
+});
 
 function MaterialUIForm() {
-  const schema: FormSchema = {
-    name: 'required',
-    email: 'email'
-  };
-
-  const { setValue, submitForm, formErrors, getValues } = useForm(schema);
+  const { setValue, submitForm, formErrors, getValues } = useForm({ schema });
   const values = getValues();
 
   return (
@@ -713,8 +657,18 @@ formData.set('field', 'value'); // Avoid this
 // ❌ Don't call getValues() in loops or renders
 values.map(() => getValues()); // Expensive
 
-// ❌ Don't recreate schemas on every render
-const schema = { name: 'required' }; // Declare outside component
+// ❌ Don't recreate schemas on every render — declare them outside the component
+// Bad:
+function MyForm() {
+  const schema = z.object({ name: z.string() }); // recreated on every render
+  const form = useForm({ schema });
+}
+
+// Good:
+const schema = z.object({ name: z.string() }); // declared once
+function MyForm() {
+  const form = useForm({ schema });
+}
 ```
 
 ## 🤝 Contributing
