@@ -1,6 +1,6 @@
 export interface StandardSchemaIssue {
   readonly message: string;
-  readonly path?: ReadonlyArray<string | number | symbol>;
+  readonly path?: ReadonlyArray<PropertyKey | { readonly key: PropertyKey }>;
 }
 
 export type StandardSchemaResult<Output> =
@@ -32,7 +32,7 @@ export function mapIssues<T extends Record<string, any>>(
   const errors: Record<string, string> = {};
 
   for (const issue of issues) {
-    const key = issue.path?.map(String).join('.');
+    const key = issue.path?.map(p => (p !== null && typeof p === 'object' ? String(p.key) : String(p))).join('.');
     if (key && !errors[key]) {
       errors[key] = issue.message;
     }

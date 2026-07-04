@@ -42,4 +42,24 @@ describe("mapIssues", () => {
 
     expect(result).toEqual({});
   });
+
+  test("supports StandardPathItem ({ key }) style path entries", () => {
+    const result = mapIssues([
+      { message: "Invalid email", path: [{ key: "email" }] },
+      { message: "Required", path: [{ key: "address" }, { key: "street" }] },
+    ]);
+
+    expect(result).toEqual({
+      email: "Invalid email",
+      "address.street": "Required",
+    });
+  });
+
+  test("supports mixed primitive and StandardPathItem path entries", () => {
+    const result = mapIssues([
+      { message: "Out of range", path: ["items", { key: 0 }, "value"] },
+    ]);
+
+    expect(result).toEqual({ "items.0.value": "Out of range" });
+  });
 });
